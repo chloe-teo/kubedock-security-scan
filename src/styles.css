@@ -1,0 +1,26 @@
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f3f2f1;color:#323130;padding:24px}
+h1{font-size:22px;font-weight:600;color:#201f1e;margin-bottom:4px}
+.meta{font-size:12px;color:#605e5c;margin-bottom:24px}
+.totals{display:flex;gap:16px;margin-bottom:28px}
+.card{background:#fff;border-radius:6px;padding:16px 24px;min-width:130px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.card .n{font-size:36px;font-weight:700;line-height:1}
+.card .l{font-size:12px;color:#605e5c;margin-top:4px}
+.card.fail .n{color:#a4262c}
+.card.pass .n{color:#107c10}
+section{background:#fff;border-radius:6px;padding:20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+h2{font-size:15px;font-weight:600;margin-bottom:12px;color:#201f1e}
+.pills{display:flex;gap:10px;margin-bottom:14px}
+.pill-fail{background:#fde7e9;color:#a4262c;padding:3px 12px;border-radius:12px;font-size:12px;font-weight:600}
+.pill-pass{background:#dff6dd;color:#107c10;padding:3px 12px;border-radius:12px;font-size:12px;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#0078d4;color:#fff;padding:9px 12px;text-align:left;font-weight:600}
+td{padding:7px 12px;border-bottom:1px solid #edebe9;vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f9f8f7}
+.badge-fail{background:#a4262c;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;white-space:nowrap}
+.badge-pass{background:#107c10;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;white-space:nowrap}
+.mono{font-family:'Cascadia Code','Consolas',monospace}
+.small{font-size:11px;color:#605e5c}
+.nowrap{white-space:nowrap}
+.muted{color:#605e5c;font-style:italic}

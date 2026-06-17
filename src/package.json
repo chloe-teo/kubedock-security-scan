@@ -1,0 +1,25 @@
+{
+  "name": "kubedockguard",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "postbuild": "node -e \"require('fs').copyFileSync('styles.css', 'dist/styles.css')\"",
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "azure-pipelines-task-lib": "^5.2.10"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^20.19.42",
+    "@types/q": "^1.5.8",
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.11",
+    "typescript": "^5.9.3"
+  }
+}
