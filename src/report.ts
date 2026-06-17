@@ -65,11 +65,11 @@ export function generateHTML(k8s: CheckovResults | null, helmResults: CheckovRes
       <html lang="en">
       <head>
       <meta charset="UTF-8">
-      <title>KubeDock Guard — Scan Report</title>
+      <title>KubeDock Security Scan</title>
       <style>${reportStyles}</style>
       </head>
       <body>
-      <h1>KubeDock Guard — Security Scan Report</h1>
+      <h1>KubeDock Security Scan Report</h1>
       <p class="meta">Scanned: ${escapeHtml(scanTime)} &nbsp;|&nbsp; Path: ${escapeHtml(repoPath)}</p>
 
         <div class="totals">

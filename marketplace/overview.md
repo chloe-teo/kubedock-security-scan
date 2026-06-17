@@ -66,6 +66,6 @@ By default it will check against all the policy provided by Checkov. As an kuber
 > **Note:** `helmTemplatesPath` cannot be used without `helmFolderPath` — the task will error if `helmTemplatesPath` is set but `helmFolderPath` is empty.
 
 ## Feedback & Review
-If this extension helps your team/company in the software development lifecycle, please support by providing your feedback in the above Rating & Review page, or give me a star in the github.
+If this extension helps your team/company in the software development lifecycle, please support by providing your feedback in the above Rating & Review tab.
 
 Any issue or feature requests, please go to github to create an issue.

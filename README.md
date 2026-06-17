@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="marketplace/logo.png" alt="KubeDock Guard Logo" width="110" />
+</p>
+
 # KubeDock Security Scan - Azure DevOps Extension
 
 Scans Kubernetes manifests, Dockerfiles, and Helm charts using [Checkov](https://www.checkov.io/) and publishes the results as an HTML report in the pipeline summary tab.
@@ -25,5 +29,6 @@ $env:INPUT_policyRepoPath = ""   # leave empty to use default Checkov checks
 $env:INPUT_repoPath = "<your-repo-where-manifests-dockerfile-lives>"
 ```
 
-Then run node dist/index.js to see the console output.
-Based on the output, "Report saved" tells where the html is generated and can view in browser.
+Run ```node dist/index.js``` to see the console output.
+
+Based on the console output, "Report saved" tells where the html is generated in your local and you can view it in browser.
