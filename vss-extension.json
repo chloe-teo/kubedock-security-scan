@@ -1,6 +1,6 @@
 {
   "manifestVersion": 1,
-  "id": "kubedock-security-scan",
+  "id": "kubedock-security-scan-v1",
   "publisher": "chloe-teo10",
   "version": "0.0.1",
   "name": "KubeDock Security Scan",
@@ -41,7 +41,7 @@
     }
   ],
   "contributions": [{
-    "id": "kubedock-security-scan",
+    "id": "kubedock-security-scan-v1",
     "type": "ms.vss-distributed-task.task",
     "targets": ["ms.vss-distributed-task.tasks"],
     "properties": {
