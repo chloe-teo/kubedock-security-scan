@@ -70,11 +70,11 @@ export async function run() {
             fs.writeFileSync(reportPath, html, 'utf8');
             console.log(`Report saved: ${reportPath}`);
 
-            console.log(`##vso[task.addattachment type=Distributedtask.Core.Summary;name=Checkov Security Scan;]${reportPath}`);
+            console.log(`##vso[task.addattachment type=Distributedtask.Core.Summary;name=KubeDock Security Scan;]${reportPath}`);
 
             const totalFailed = (helmResults?.summary.failed ?? 0) + (k8sResults?.summary.failed ?? 0) + (dockerResults?.summary.failed ?? 0);
             if (totalFailed > 0) {
-                const message = `Checkov found ${totalFailed} security issue(s). See the "Checkov Security Scan" tab for details.`;
+                const message = `Checkov found ${totalFailed} security issue(s). See the "KubeDock Security Scan" tab for details.`;
                 tl.setResult(failOnIssues ? tl.TaskResult.Failed : tl.TaskResult.SucceededWithIssues, message);
             } else {
                 tl.setResult(tl.TaskResult.Succeeded, 'All Checkov checks passed.');

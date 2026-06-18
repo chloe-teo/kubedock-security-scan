@@ -4,9 +4,8 @@ Scans Kubernetes manifests, Dockerfiles, and Helm charts using [Checkov](https:/
 
 This extension shift security scanning of kubernetes manifest and dockerfile into Azure DevOps Pipeline and allow changes to be detected in the software development lifecycle and enable quick feedback for the development team.
 
-By default it will check against all the policy provided by Checkov. As an kubernetes operator, you can provide custom policy checks (with Yaml or Python) and also set the list of vulnerability that you want to check for the application manifests, by choosing from [Checkov Kubernetes policy list](https://www.checkov.io/5.Policy%20Index/kubernetes.html), [Checkov Docker policy list](https://www.checkov.io/5.Policy%20Index/dockerfile.html). 
+By default it will check against all the policy provided by Checkov. As an kubernetes operator, you can provide custom policy checks (with Yaml or Python) and also set the list of vulnerability that you want to check for the application manifests, by choosing from [Checkov Kubernetes policy list](https://www.checkov.io/5.Policy%20Index/kubernetes.html), [Checkov Docker policy list](https://www.checkov.io/5.Policy%20Index/dockerfile.html). On how to setup this, please look into this below section "Custom Policy Setup"
 
----
 
 ## Inputs
 
@@ -29,7 +28,7 @@ By default it will check against all the policy provided by Checkov. As an kuber
    - **Dockerfiles** (`--framework dockerfile`)
    - **Helm** charts — either via `helm template` render (if `helmTemplatesPath` is set) or directly (`--framework helm`)
 3. If `policyRepoPath` is provided, passes `checkov-policy.yaml` as `--config-file` and `custom-checks/` as `--external-checks-dir`.
-4. Generates an HTML report and attaches it to the pipeline summary as the **"Checkov Security Scan"** tab.
+4. Generates an HTML report and attaches it to the pipeline summary as the **"KubeDock Security Scan"** tab.
 5. Sets the task result based on `failOnIssues`.
 
 ---
@@ -65,7 +64,39 @@ By default it will check against all the policy provided by Checkov. As an kuber
 
 > **Note:** `helmTemplatesPath` cannot be used without `helmFolderPath` — the task will error if `helmTemplatesPath` is set but `helmFolderPath` is empty.
 
+## Custom Policy Setup
+
+1. Create a yaml file with name ``checkov-policy.yaml`` in a folder with following content to test out:
+
+This following checks are from existing Checkov policy, select some for your team/company purpose.
+```yaml
+check:
+  # Kubernetes
+  - CKV_K8S_8    # Liveness probe configured
+  - CKV_K8S_9    # Readiness probe configured
+  - CKV_K8S_14   # Image tag not :latest
+  - CKV_K8S_15   # Image pull policy not Always when using :latest
+  - CKV_K8S_20   # Containers do not run as root
+  - CKV_K8S_28   # Do not admit containers with NET_RAW capability
+  - CKV_K8S_30   # Do not admit containers with added capability
+  - CKV_K8S_36   # Ensure pod is not running with dangerous capabilities
+  - CKV_K8S_37   # Minimize the admission of containers with added capability
+
+  # Custom
+  # Uncomment this if you have custom policy - CKV2_K8S_CUSTOM_1  # CPU request must not exceed 1 core
+
+  # Dockerfile
+  - CKV_DOCKER_1  # Ensure FROM statement uses a specific version tag
+  - CKV_DOCKER_2  # Ensure that HEALTHCHECK instructions have been added
+  - CKV_DOCKER_3  # Ensure that a USER for the container has been created
+  - CKV_DOCKER_4  # Ensure that the Dockerfile does not contain ADD instruction
+
+
+```
+2. If this folder is put in a different repo, make sure this repo is pre-checkout in a folder path, then pass into argument ``policyRepoPath``.
+3. If you have custom policy via YAML or python, place them into a folder named ``custom-checks`` along side the ``checkov-policy.yaml`` file.
+
 ## Feedback & Review
-If this extension helps your team/company in the software development lifecycle, please support by providing your feedback in the above Rating & Review tab.
+If this extension helps your team/company in the software development lifecycle, please support by providing your feedback in the above Rating & Review tab or provide a star to the github repo.
 
 Any issue or feature requests, please go to github to create an issue.
