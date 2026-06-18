@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "postbuild": "node -e \"require('fs').copyFileSync('styles.css', 'dist/styles.css')\"",
     "test": "jest --coverage --reporters=default --reporters=jest-junit"
   },

@@ -66,11 +66,11 @@ export async function run() {
             const html = generateHTML(k8sResults, helmResults, dockerResults, resolved);
 
             const tempDir = tl.getVariable('Agent.TempDirectory') ?? os.tmpdir();
-            const reportPath = path.join(tempDir, 'kubediffscan-report.html');
+            const reportPath = path.join(tempDir, 'kubedockscan-report.html');
             fs.writeFileSync(reportPath, html, 'utf8');
             console.log(`Report saved: ${reportPath}`);
 
-            console.log(`##vso[task.addattachment type=Distributedtask.Core.Summary;name=KubeDock Security Scan;]${reportPath}`);
+            tl.command('task.addattachment', { type: 'Distributedtask.Core.Summary', name: 'KubeDock Security Scan' }, reportPath);
 
             const totalFailed = (helmResults?.summary.failed ?? 0) + (k8sResults?.summary.failed ?? 0) + (dockerResults?.summary.failed ?? 0);
             if (totalFailed > 0) {

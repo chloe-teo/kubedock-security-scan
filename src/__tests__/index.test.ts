@@ -3,6 +3,7 @@ jest.mock('azure-pipelines-task-lib/task', () => ({
     getBoolInput: jest.fn(),
     getVariable: jest.fn(),
     setResult: jest.fn(),
+    command: jest.fn(),
     TaskResult: { Succeeded: 0, SucceededWithIssues: 1, Failed: 2 }
 }));
 
@@ -156,7 +157,7 @@ describe('run', () => {
     it('writes the HTML report to a file', async () => {
         await run();
         expect(fs.writeFileSync).toHaveBeenCalledWith(
-            expect.stringContaining('kubediffscan-report.html'),
+            expect.stringContaining('kubedockscan-report.html'),
             '<html></html>',
             'utf8'
         );
