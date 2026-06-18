@@ -102,7 +102,7 @@ stages:
               publisherId: '$(publisherId)'
               extensionId: '$(extensionId)'
               extensionName: '$(extensionName)'
-              extensionVersion: '0.0.1'
+              extensionVersion: '0.0.2'
               updateTasksVersion: true
               updateTasksVersionType: 'patch'
               extensionVisibility: 'private'
