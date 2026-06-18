@@ -30,7 +30,7 @@ stages:
             inputs:
               command: 'custom'
               workingDir: '$(Build.SourcesDirectory)/src'
-              customCommand: 'build'
+              customCommand: 'run build'
 
           - task: Npm@1
             displayName: 'Run unit tests'
@@ -76,7 +76,7 @@ stages:
             inputs:
               command: 'custom'
               workingDir: '$(Build.SourcesDirectory)/src'
-              customCommand: 'build'
+              customCommand: 'run build'
 
           - task: Npm@1
             displayName: 'Remove dev dependencies'
