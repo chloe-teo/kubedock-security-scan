@@ -102,16 +102,17 @@ stages:
               publisherId: '$(publisherId)'
               extensionId: '$(extensionId)'
               extensionName: '$(extensionName)'
-              extensionVersion: '0.0.$(Build.BuildId)'
+              extensionVersion: '0.0.1'
               updateTasksVersion: true
               updateTasksVersionType: 'patch'
               extensionVisibility: 'private'
               extensionPricing: 'free'
-          
+              outputPath: '$(Build.ArtifactStagingDirectory)'
+
           - task: PublishBuildArtifacts@1
             displayName: 'Publish VSIX artifact'
             inputs:
-              PathtoPublish: '$(System.DefaultWorkingDirectory)/*.vsix'
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
               ArtifactName: '$(artifactName)'
               publishLocation: 'Container'
 
@@ -138,7 +139,7 @@ stages:
                     connectTo: 'VsTeam'
                     connectedServiceName: 'visual-studio-marketplace'
                     fileType: 'vsix'
-                    vsixFile: '$(Pipeline.Workspace)/$(artifactName)/*.vsix'
+                    vsixFile: '$(Pipeline.Workspace)/$(artifactName)/**/*.vsix'
                     publisherId: '$(publisherId)'
                     extensionId: '$(extensionId)'
                     extensionName: '$(extensionName)'
