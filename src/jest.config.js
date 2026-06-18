@@ -6,5 +6,6 @@ module.exports = {
         '*.ts',
         '!*.test.ts',
         '!dist/**'
-    ]
+    ],
+    coverageReporters: ['text', 'cobertura']
 }

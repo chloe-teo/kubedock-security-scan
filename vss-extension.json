@@ -1,23 +1,21 @@
 {
   "manifestVersion": 1,
-  "publisher": "chloeteo",
+  "id": "kubedock-security-scan",
+  "publisher": "chloe-teo10",
+  "version": "0.0.1",
   "name": "KubeDock Security Scan",
-  "description": "An extension to be used in Azure Pipelines to scan Kubernetes manifests and Dockerfiles with Checkov, and publish results to the pipeline summary.",
-  "public": true,
-  "categories": ["Azure Repos"],
-  "demands": ["api-version/5.1"],
+  "description": "A task to be used in Azure Pipelines to scan Kubernetes manifests and Dockerfiles with Checkov, and publish results to the pipeline summary.",
+  "public": false,
+  "categories": ["Azure Pipelines"],
   "scopes": [
-    "vso.code",
-    "vso.build",
-    "vso.graph",
-    "vso.work"
+    "vso.build"
   ],
   "targets": [{
     "id": "Microsoft.VisualStudio.Services"
   }],
   "repository": {
     "type": "git",
-    "url": "https://github.com/chloe-teo/kubediffscan"
+    "url": "https://github.com/chloe-teo/kubedock-security-scan"
   },
   "icons": {
     "default": "marketplace/logo.png",
@@ -34,12 +32,20 @@
   "tags": ["checkov-scanner", "k8s-scanner", "dockerfile-scanner", "helm-scanner", "container-security", "kubernetes-security", "devsecops"],
   "screenshots": [],
   "files": [{
-      "path": "build",
+      "path": "src",
       "addressable": true
     },
     {
       "path": "marketplace",
       "addressable": true
     }
-  ]
+  ],
+  "contributions": [{
+    "id": "kubedock-security-scan",
+    "type": "ms.vss-distributed-task.task",
+    "targets": ["ms.vss-distributed-task.tasks"],
+    "properties": {
+      "name": "src"
+    }
+  }]
 }

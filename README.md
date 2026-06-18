@@ -8,13 +8,13 @@ Scans Kubernetes manifests, Dockerfiles, and Helm charts using [Checkov](https:/
 
 This extension shift security scanning of kubernetes manifest and dockerfile into Azure DevOps Pipeline and allow changes to be detected in the software development lifecycle and enable quick feedback for the development team.
 
-As an kubernetes operator, you can provide custom policy checks and also choose the vulnerability that you want to check for the application manifests. By default it will check against all the policy provided by Checkov.
+By default it will check against all the policy provided by Checkov. As an kubernetes operator, you can provide custom policy checks (with Yaml or Python) and also set the list of vulnerability that you want to check for the application manifests, by choosing from [Checkov Kubernetes policy list](https://www.checkov.io/5.Policy%20Index/kubernetes.html), [Checkov Docker policy list](https://www.checkov.io/5.Policy%20Index/dockerfile.html). 
 
 ## Local environment testing
 
 Build the code to be compiled as runnable javascript
 ```
-cd buildandreleasetask
+cd src
 npm run build
 npm test
 ```

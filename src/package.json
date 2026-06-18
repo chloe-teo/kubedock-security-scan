@@ -6,7 +6,11 @@
   "scripts": {
     "build": "tsc",
     "postbuild": "node -e \"require('fs').copyFileSync('styles.css', 'dist/styles.css')\"",
-    "test": "jest"
+    "test": "jest --coverage --reporters=default --reporters=jest-junit"
+  },
+  "jest-junit": {
+    "outputDirectory": ".",
+    "outputName": "test-results.xml"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +24,7 @@
     "@types/q": "^1.5.8",
     "jest": "^30.4.2",
     "ts-jest": "^29.4.11",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "jest-junit": "^16.0.0"
   }
 }

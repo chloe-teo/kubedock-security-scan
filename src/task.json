@@ -1,71 +1,71 @@
 {
- "$schema": "https://raw.githubusercontent.com/Microsoft/azure-pipelines-task-lib/master/tasks.schema.json",
- "id": "8041a5ee-07dc-412e-9060-665e06c79825",
- "name": "KubeDockSecurityScan",
- "friendlyName": "KubeDock Security Scan",
- "description": "Scan Kubernetes manifests and Dockerfiles with Checkov and publish results to the pipeline summary.",
- "helpMarkDown": "",
- "category": "Utility",
- "author": "chloe-teo",
- "version": {
-     "Major": 0,
-     "Minor": 1,
-     "Patch": 0
- },
- "instanceNameFormat": "KubeDock Security Scan: $(repoPath)",
- "inputs": [
-     {
-         "name": "repoPath",
-         "type": "string",
-         "label": "Repository Path",
-         "defaultValue": "$(System.DefaultWorkingDirectory)",
-         "required": true,
-         "helpMarkDown": "Path to the checked-out repository to scan. Defaults to the pipeline workspace."
-     },
-     {
-         "name": "policyRepoPath",
-         "type": "string",
-         "label": "Policy Repo Path",
-         "defaultValue": "",
-         "required": false,
-         "helpMarkDown": "Path to a pre-checked-out central policy repo containing checkov-policy.yaml and/or a custom-checks folder. Leave empty to run with default checks."
-     },
-     {
-         "name": "helmTemplatesPath",
-         "type": "string",
-         "label": "Helm Templates Path",
-         "defaultValue": "",
-         "required": false,
-         "helpMarkDown": "Path to the Helm templates to scan. Leave empty to scan the entire repository."
-     },
-     {
-         "name": "helmValuesPaths",
-         "type": "string",
-         "label": "Helm Values Paths",
-         "defaultValue": "",
-         "required": false,
-         "helpMarkDown": "Comma-separated paths to Helm values files. Leave empty to scan the entire repository."
-     },
-     {
-        "name": "helmFolderPath",
-         "type": "string",
-         "label": "Helm Repository Path",
-         "defaultValue": "",
-         "required": false,
-         "helpMarkDown": "Path to Helm repository directory. Leave empty to scan the entire repository."
-     },
-     {
-         "name": "failOnIssues",
-         "type": "boolean",
-         "label": "Fail on Issues",
-         "defaultValue": false,
-         "required": false,
-         "helpMarkDown": "When enabled, the pipeline fails if Checkov finds any security issues. Disable to report issues as a warning without failing the pipeline."
-     }
- ],
+    "$schema": "https://raw.githubusercontent.com/Microsoft/azure-pipelines-task-lib/master/tasks.schema.json",
+    "id": "8041a5ee-07dc-412e-9060-665e06c79825",
+    "name": "KubeDockSecurityScan",
+    "friendlyName": "KubeDock Security Scan",
+    "description": "Scan Kubernetes manifests and Dockerfiles with Checkov and publish results to the pipeline summary.",
+    "helpMarkDown": "",
+    "category": "Utility",
+    "author": "chloe-teo",
+    "version": {
+        "Major": 0,
+        "Minor": 1,
+        "Patch": 0
+    },
+    "instanceNameFormat": "KubeDock Security Scan: $(repoPath)",
+    "inputs": [
+        {
+            "name": "repoPath",
+            "type": "string",
+            "label": "Repository Path",
+            "defaultValue": "$(System.DefaultWorkingDirectory)",
+            "required": true,
+            "helpMarkDown": "Path to the checked-out repository to scan. Defaults to the pipeline workspace."
+        },
+        {
+            "name": "policyRepoPath",
+            "type": "string",
+            "label": "Policy Repo Path",
+            "defaultValue": "",
+            "required": false,
+            "helpMarkDown": "Path to a pre-checked-out central policy repo containing checkov-policy.yaml and/or a custom-checks folder. Leave empty to run with default checks."
+        },
+        {
+            "name": "helmTemplatesPath",
+            "type": "string",
+            "label": "Helm Templates Path",
+            "defaultValue": "",
+            "required": false,
+            "helpMarkDown": "Path to a pre-checked-out Helm templates to scan. Leave empty to scan the entire repository."
+        },
+        {
+            "name": "helmValuesPaths",
+            "type": "string",
+            "label": "Helm Values Paths",
+            "defaultValue": "",
+            "required": false,
+            "helpMarkDown": "Comma-separated paths to checked-out Helm values files. Leave empty to scan the entire repository."
+        },
+        {
+            "name": "helmFolderPath",
+            "type": "string",
+            "label": "Helm Repository Path",
+            "defaultValue": "",
+            "required": false,
+            "helpMarkDown": "Path to checked-out Helm repository directory. Leave empty to scan the entire repository."
+        },
+        {
+            "name": "failOnIssues",
+            "type": "boolean",
+            "label": "Fail on Issues",
+            "defaultValue": false,
+            "required": false,
+            "helpMarkDown": "When enabled, the pipeline fails if Checkov finds any security issues. Disable to report issues as a warning without failing the pipeline."
+        }
+    ],
     "execution": {
         "Node20_1": {
-            "target": "index.ts"
+            "target": "dist/index.js"
         }
     }
 }
