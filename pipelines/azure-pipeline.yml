@@ -85,15 +85,15 @@ stages:
               workingDir: '$(Build.SourcesDirectory)/src'
               customCommand: 'prune --production'
 
-          # - task: QueryAzureDevOpsExtensionVersion@5
-          #   name: QueryVersion
-          #   displayName: 'Query current extension version'
-          #   inputs:
-          #     connectTo: 'VsTeam'
-          #     connectedServiceName: 'visual-studio-marketplace'
-          #     publisherId: '$(publisherId)'
-          #     extensionId: '$(extensionId)'
-          #     versionAction: 'Patch'
+          - task: QueryAzureDevOpsExtensionVersion@5
+            name: QueryVersion
+            displayName: 'Query current extension version'
+            inputs:
+              connectTo: 'VsTeam'
+              connectedServiceName: 'visual-studio-marketplace'
+              publisherId: '$(publisherId)'
+              extensionId: '$(extensionId)'
+              versionAction: 'Patch'
           
           - task: PackageAzureDevOpsExtension@5
             displayName: 'Package extension'
@@ -102,7 +102,7 @@ stages:
               publisherId: '$(publisherId)'
               extensionId: '$(extensionId)'
               extensionName: '$(extensionName)'
-              extensionVersion: '0.0.1'
+              extensionVersion: '$(QueryVersion.extensionVersion)'
               updateTasksVersion: true
               updateTasksVersionType: 'patch'
               extensionVisibility: 'private'

@@ -2,12 +2,13 @@
   <img src="marketplace/logo.png" alt="KubeDock Guard Logo" width="110" />
 </p>
 
-# KubeDock Security Scan - Azure DevOps Extension
+# KubeDock Security Scans - Azure DevOps Extension
 
-Scans Kubernetes manifests, Dockerfiles, and Helm charts using [Checkov](https://www.checkov.io/) and publishes the results as an HTML report in the pipeline summary tab.
+Want to shift left the security scanning of Kubernetes manifest and Dockerfile into the software development lifecycles? Or to catch any vulnerability due to misconfiguration and provide feedback after application pipeline run? Then this is the extension you can use for those purpose!
+
+This azure pipeline task scans Kubernetes manifests, Dockerfiles, and Helm charts using [Checkov](https://www.checkov.io/) and publishes the results as an HTML report in the pipeline summary tab.
 
 This extension shift security scanning of kubernetes manifest and dockerfile into Azure DevOps Pipeline and allow changes to be detected in the software development lifecycle and enable quick feedback for the development team.
-
 
 By default it will check against all the policy provided by Checkov. As an kubernetes operator, you can provide custom policy checks (with Yaml or Python) and also set the list of vulnerability that you want to check for the application manifests, by choosing from [Checkov Kubernetes policy list](https://www.checkov.io/5.Policy%20Index/kubernetes.html), [Checkov Docker policy list](https://www.checkov.io/5.Policy%20Index/dockerfile.html). On how to setup this, please look into this below section "Custom Policy Setup"
 

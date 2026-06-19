@@ -74,10 +74,10 @@ export async function run() {
 
             const totalFailed = (helmResults?.summary.failed ?? 0) + (k8sResults?.summary.failed ?? 0) + (dockerResults?.summary.failed ?? 0);
             if (totalFailed > 0) {
-                const message = `Checkov found ${totalFailed} security issue(s). See the "KubeDock Security Scan" tab for details.`;
+                const message = `KubeDock Security Scan task found ${totalFailed} security issue(s). See the "KubeDock Scan" tab for details.`;
                 tl.setResult(failOnIssues ? tl.TaskResult.Failed : tl.TaskResult.SucceededWithIssues, message);
             } else {
-                tl.setResult(tl.TaskResult.Succeeded, 'All Checkov checks passed.');
+                tl.setResult(tl.TaskResult.Succeeded, 'All KubeDock Security Scan checks passed.');
             }
         } catch (e: any) {
             throw new Error(`Failed to run the checking, the error message is (${e.message})`);
