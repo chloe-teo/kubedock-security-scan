@@ -135,7 +135,7 @@ describe('run', () => {
 
     it('sets result to succeeded when no failures found', async () => {
         await run();
-        expect(mockSetResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'All Checkov checks passed.');
+        expect(mockSetResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'All KubeDock Security Scan passed.');
     });
 
     it('fails the pipeline when failOnIssues is true and issues are found', async () => {
