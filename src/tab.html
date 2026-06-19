@@ -20,22 +20,26 @@
       VSS.notifyLoadSucceeded();
       var cfg = VSS.getConfiguration();
       var ctx = VSS.getWebContext();
-      VSS.require(['VSS/Service', 'TFS/Build/RestClient'], function (Service, BuildClient) {
-        var client = Service.getCollectionClient(BuildClient.BuildHttpClient);
-        client.getAttachmentContent(ctx.project.id, cfg.buildId, 'Distributedtask.Core.Summary', 'KubeDock Security Scan')
-          .then(function (content) {
-            var html = typeof content === 'string' ? content : new TextDecoder('utf-8').decode(content);
-            var blob = new Blob([html], { type: 'text/html' });
-            var url = URL.createObjectURL(blob);
-            var frame = document.getElementById('frame');
-            frame.src = url;
-            frame.style.display = 'block';
-            document.getElementById('msg').style.display = 'none';
-            frame.addEventListener('load', function () { URL.revokeObjectURL(url); }, { once: true });
-          })
-          .catch(function () {
-            document.getElementById('msg').textContent = 'No scan report found for this run. Run the KubeDock Security Scan task first.';
-          });
+      var collectionUri = ctx.collection.uri.replace(/\/?$/, '/');
+      var url = collectionUri + ctx.project.id +
+        '/_apis/build/builds/' + cfg.buildId +
+        '/attachments/Distributedtask.Core.Summary/KubeDock%20Security%20Scan?api-version=6.0';
+
+      VSS.getAccessToken().then(function (tokenObj) {
+        return fetch(url, { headers: { 'Authorization': 'Bearer ' + tokenObj.token } });
+      }).then(function (response) {
+        if (!response.ok) throw new Error('HTTP ' + response.status + ' – run the KubeDock Security Scan task first');
+        return response.text();
+      }).then(function (html) {
+        var blob = new Blob([html], { type: 'text/html' });
+        var blobUrl = URL.createObjectURL(blob);
+        var frame = document.getElementById('frame');
+        frame.src = blobUrl;
+        frame.style.display = 'block';
+        document.getElementById('msg').style.display = 'none';
+        frame.addEventListener('load', function () { URL.revokeObjectURL(blobUrl); }, { once: true });
+      }).catch(function (err) {
+        document.getElementById('msg').textContent = 'Could not load report: ' + String(err);
       });
     });
   </script>
