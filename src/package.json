@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && tsc -p tsconfig.enhancer.json",
     "postbuild": "node scripts/postbuild.js",
     "test": "jest --coverage --reporters=default --reporters=jest-junit"
   },

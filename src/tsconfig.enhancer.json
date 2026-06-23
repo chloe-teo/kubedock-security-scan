@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "amd",
+    "moduleResolution": "node",
+    "outDir": "./",
+    "rootDir": "./"
+  },
+  "include": ["enhancer/**/*.ts"]
+}
