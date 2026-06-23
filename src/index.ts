@@ -6,11 +6,13 @@ import { CheckovResults } from './types';
 import { installCheckov, runCheckov } from './checkov';
 import { renderHelmTemplates } from './helm';
 import { generateHTML } from './report';
+import { getPrContext, postPrComments } from './pr-comment';
 
 export async function run() {
     try {
         const repoPath: string = tl.getInput('repoPath', true)!;
         const failOnIssues: boolean = tl.getBoolInput('failOnIssues', false) ?? true;
+        const postPrCommentsEnabled: boolean = tl.getBoolInput('postPrComments', false) ?? false;
         const policyRepoPath: string = tl.getInput('policyRepoPath', false) ?? '';
         const helmFolderPath: string = tl.getInput('helmFolderPath', false) ?? '';
         const helmTemplatesPath: string = tl.getInput('helmTemplatesPath', false) ?? '';
@@ -73,6 +75,19 @@ export async function run() {
             tl.command('task.addattachment', { type: 'kubedock.scanresult', name: 'KubeDock Security Scan' }, reportPath);
 
             const totalFailed = (helmResults?.summary.failed ?? 0) + (k8sResults?.summary.failed ?? 0) + (dockerResults?.summary.failed ?? 0);
+
+            if (postPrCommentsEnabled) {
+                const prCtx = getPrContext();
+                if (prCtx) {
+                    const allFailed = [
+                        ...(k8sResults?.results.failed_checks ?? []),
+                        ...(helmResults?.results.failed_checks ?? []),
+                        ...(dockerResults?.results.failed_checks ?? []),
+                    ];
+                    await postPrComments(allFailed, prCtx);
+                }
+            }
+
             if (totalFailed > 0) {
                 const message = `KubeDock Security Scan task found ${totalFailed} security issue(s). See the "KubeDock Scan" tab for details.`;
                 tl.setResult(failOnIssues ? tl.TaskResult.Failed : tl.TaskResult.SucceededWithIssues, message);

@@ -61,6 +61,14 @@
             "defaultValue": false,
             "required": false,
             "helpMarkDown": "When enabled, the pipeline fails if Checkov finds any security issues. Disable to report issues as a warning without failing the pipeline."
+        },
+        {
+            "name": "postPrComments",
+            "type": "boolean",
+            "label": "Post PR Comments",
+            "defaultValue": false,
+            "required": false,
+            "helpMarkDown": "Post an inline comment on the PR for each failed check. Requires allowing the build service to contribute to pull requests."
         }
     ],
     "execution": {
