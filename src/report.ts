@@ -18,6 +18,9 @@ function checkRow(check: CheckovCheck, status: 'passed' | 'failed'): string {
     const badge = status === 'passed'
         ? '<span class="badge-pass">PASS</span>'
         : '<span class="badge-fail">FAIL</span>';
+    const guidelineCell = (status === 'failed' && check.guideline)
+        ? `<a href="${escapeHtml(check.guideline)}" target="_blank" rel="noopener">docs</a>`
+        : '—';
     return `
       <tr>
       <td>${badge}</td>
@@ -25,6 +28,7 @@ function checkRow(check: CheckovCheck, status: 'passed' | 'failed'): string {
       <td>${escapeHtml(check.resource)}</td>
       <td class="mono small">${escapeHtml(relFile)}</td>
       <td>${escapeHtml(check.check_name)}</td>
+      <td>${guidelineCell}</td>
     </tr>`;
 }
 
@@ -47,7 +51,7 @@ function sectionHtml(title: string, results: CheckovResults | null): string {
       </div>
       <table>
         <thead><tr>
-          <th>Status</th><th>Check ID</th><th>Resource</th><th>File</th><th>Description</th>
+          <th>Status</th><th>Check ID</th><th>Resource</th><th>File</th><th>Description</th><th>Guideline</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>

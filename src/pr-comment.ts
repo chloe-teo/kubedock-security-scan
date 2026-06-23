@@ -23,51 +23,38 @@ export function getPrContext(): PrCommentOptions | null {
     };
 }
 
-function buildCommentBody(check: CheckovCheck): string {
-    const file = check.repo_file_path || check.file_path;
-    const evaluatedKeys = check.check_result?.evaluated_keys ?? [];
-    const rows = [
-        `| Check | \`${check.check_id}\` |`,
-        `| Description | ${check.check_name} |`,
-        `| Resource | \`${check.resource}\` |`,
-        `| File | \`${file}\` |`,
-    ];
-    if (evaluatedKeys.length > 0) {
-        rows.push(`| Missing field | \`${evaluatedKeys[0]}\` |`);
-    }
-    if (check.guideline) {
-        rows.push(`| Guideline | ${check.guideline} |`);
-    }
+function buildConsolidatedComment(failedChecks: CheckovCheck[]): string {
+    const rows = failedChecks.map(check => {
+        const file = check.repo_file_path || check.file_path;
+        const lines = check.file_line_range ? `${check.file_line_range[0]}–${check.file_line_range[1]}` : '—';
+        const missingField = check.check_result?.evaluated_keys?.[0] ?? '—';
+        const guideline = check.guideline ? `[docs](${check.guideline})` : '—';
+        return `| \`${check.check_id}\` | ${check.check_name} | \`${check.resource}\` | \`${file}\` | ${lines} | \`${missingField}\` | ${guideline} |`;
+    });
+
     return [
-        `**KubeDock Security Scan** — policy violation`,
+        `## :x: KubeDock Security Scan — ${failedChecks.length} violation(s) found`,
         ``,
-        `| Field | Value |`,
-        `|---|---|`,
+        `| Check | Description | Resource | File | Lines | Missing Field | Guideline |`,
+        `|---|---|---|---|---|---|---|`,
         ...rows,
     ].join('\n');
 }
 
-function postThread(check: CheckovCheck, options: PrCommentOptions): Promise<void>{
-    const file = check.repo_file_path || check.file_path;
-    const startLine = check.file_line_range?.[0] ?? 1;
-    const endLine = check.file_line_range?.[1] ?? startLine;
-
+function postThread(content: string, opts: PrCommentOptions): Promise<void> {
     const payload = JSON.stringify({
-        comments : [{parentCommentId: 0, content: buildCommentBody(check), commentType: 1}],
+        comments: [{ parentCommentId: 0, content, commentType: 1 }],
         status: 1,
-        threadContext: {
-            filePath: file.startsWith("/") ? file : `/${file}`,
-            rightFileStart: {line: startLine, offset: 1},
-            rightFileEnd: {line: endLine, offset: 1}
-        }
     });
-    if (options.dryRun) {
-        console.log(`[dry-run] PR thread for ${check.check_id}:\n${payload}`);
+
+    if (opts.dryRun) {
+        console.log(`[dry-run] PR comment:\n${content}`);
         return Promise.resolve();
     }
-    const base = new URL(options.collectionUri);
-    const path = `/${options.project}/_apis/git/repositories/${options.repositoryId}/pullRequests/${options.pullRequestId}/threads?api-version=7.1`;
-    const token = Buffer.from(`:${options.accessToken}`).toString('base64');
+
+    const base = new URL(opts.collectionUri);
+    const path = `/${opts.project}/_apis/git/repositories/${opts.repositoryId}/pullRequests/${opts.pullRequestId}/threads?api-version=7.1`;
+    const token = Buffer.from(`:${opts.accessToken}`).toString('base64');
 
     return new Promise((resolve, reject) => {
         const req = https.request({
@@ -83,7 +70,7 @@ function postThread(check: CheckovCheck, options: PrCommentOptions): Promise<voi
             res.resume();
             res.on('end', () => {
                 if (res.statusCode && res.statusCode >= 400) {
-                    reject(new Error(`ADO API returned ${res.statusCode} for check ${check.check_id}`));
+                    reject(new Error(`ADO API returned ${res.statusCode}`));
                 } else {
                     resolve();
                 }
@@ -96,11 +83,11 @@ function postThread(check: CheckovCheck, options: PrCommentOptions): Promise<voi
 }
 
 export async function postPrComments(failedChecks: CheckovCheck[], opts: PrCommentOptions): Promise<void> {
-    for (const check of failedChecks) {
-        try {
-            await postThread(check, opts);
-        } catch (e: any) {
-            console.warn(`Failed to post PR comment for ${check.check_id}: ${e.message}`);
-        }
+    if (failedChecks.length === 0) return;
+    const content = buildConsolidatedComment(failedChecks);
+    try {
+        await postThread(content, opts);
+    } catch (e: any) {
+        console.warn(`Failed to post PR comment: ${e.message}`);
     }
 }
