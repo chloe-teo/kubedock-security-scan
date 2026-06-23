@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "postbuild": "node -e \"require('fs').copyFileSync('styles.css', 'dist/styles.css')\"",
+    "postbuild": "node scripts/postbuild.js",
     "test": "jest --coverage --reporters=default --reporters=jest-junit"
   },
   "jest-junit": {
@@ -16,15 +16,17 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "azure-pipelines-task-lib": "^5.2.10"
+    "azure-pipelines-task-lib": "^5.2.10",
+    "vss-web-extension-sdk": "^5.141.0"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
+    "@types/jquery": "^4.0.1",
     "@types/node": "^20.19.42",
     "@types/q": "^1.5.8",
     "jest": "^30.4.2",
+    "jest-junit": "^16.0.0",
     "ts-jest": "^29.4.11",
-    "typescript": "^5.9.3",
-    "jest-junit": "^16.0.0"
+    "typescript": "^5.9.3"
   }
 }

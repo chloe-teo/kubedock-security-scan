@@ -70,7 +70,7 @@ export async function run() {
             fs.writeFileSync(reportPath, html, 'utf8');
             console.log(`Report saved: ${reportPath}`);
 
-            tl.command('task.addattachment', { type: 'Distributedtask.Core.Summary', name: 'KubeDock Security Scan' }, reportPath);
+            tl.command('task.addattachment', { type: 'kubedock.scanresult', name: 'KubeDock Security Scan' }, reportPath);
 
             const totalFailed = (helmResults?.summary.failed ?? 0) + (k8sResults?.summary.failed ?? 0) + (dockerResults?.summary.failed ?? 0);
             if (totalFailed > 0) {
@@ -87,6 +87,6 @@ export async function run() {
     }
 }
 
-if (require.main === module) {
+if ((require as any).main === module) {
     run();
 }
