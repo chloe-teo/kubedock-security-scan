@@ -4,6 +4,8 @@ import { CheckovCheck, CheckovResults } from './types';
 import { mergeResults } from './checkov';
 
 const reportStyles = fs.readFileSync(path.join(__dirname, 'styles.css'), 'utf8');
+const logoBase64 = fs.readFileSync(path.join(__dirname, 'images', 'logo.png')).toString('base64');
+const logoDataUri = `data:image/png;base64,${logoBase64}`;
 
 function escapeHtml(s: string | undefined | null): string {
     return String(s ?? '')
@@ -73,7 +75,10 @@ export function generateHTML(k8s: CheckovResults | null, helmResults: CheckovRes
       <style>${reportStyles}</style>
       </head>
       <body>
-      <h1>KubeDock Security Scan Report</h1>
+      <div class="header">
+        <img class="logo" src="${logoDataUri}" alt="KubeDock Logo" />
+        <h1>KubeDock Security Scan Report</h1>
+      </div>
       <p class="meta">Scanned: ${escapeHtml(scanTime)} &nbsp;|&nbsp; Path: ${escapeHtml(repoPath)}</p>
 
         <div class="totals">
