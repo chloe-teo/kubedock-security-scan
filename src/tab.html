@@ -3,11 +3,12 @@
     <script src="lib/VSS.SDK.min.js"></script>
     
     <script type="text/javascript">
-        VSS.init( { 
-            usePlatformScripts: true, 
-            moduleLoaderConfig: { 
+        VSS.init( {
+            usePlatformScripts: true,
+            explicitNotifyLoaded: true,
+            moduleLoaderConfig: {
                 paths: { "enhancer": "enhancer" }
-            } 
+            }
         });
         
         VSS.ready(function() {
