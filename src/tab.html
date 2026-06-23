@@ -1,31 +1,17 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <head>
     <script src="lib/VSS.SDK.min.js"></script>
-    
     <script type="text/javascript">
-        VSS.init( {
-            usePlatformScripts: true,
-            explicitNotifyLoaded: true,
-            moduleLoaderConfig: {
-                paths: { "enhancer": "src/enhancer" }
-            }
-        });
-        
-        VSS.ready(function() {
-            require(["enhancer/tab"], function () { });
-        });   
+        VSS.init({ explicitNotifyLoaded: true });
     </script>
-    
+    <script src="src/enhancer/tab.js"></script>
     <style>
     .result {
         padding: 10px;
-    }     
+    }
     </style>
 </head>
-
 <body>
-  <div class="result">
-
-  </div>
+    <div class="result"></div>
 </body>
 </html>

@@ -1,47 +1,36 @@
 /// <reference path="../node_modules/vss-web-extension-sdk/typings/index.d.ts" />
-import Controls = require("VSS/Controls");
-import VSS_Service = require("VSS/Service");
-import TFS_Build_Contracts = require("TFS/Build/Contracts");
-import TFS_Build_Extension_Contracts = require("TFS/Build/ExtensionContracts");
-import DT_Client = require("TFS/DistributedTask/TaskRestClient");
 
-export class ResultTab extends Controls.BaseControl {	
-	constructor() {
-		super();
-	}
-		
-	public initialize(): void {
-		super.initialize();
-		var sharedConfig: TFS_Build_Extension_Contracts.IBuildResultsViewExtensionConfig = VSS.getConfiguration();
-		var vsoContext = VSS.getWebContext();
-		if (sharedConfig) {
-			sharedConfig.onBuildChanged((build: TFS_Build_Contracts.Build) => {
-				this._initResults(build, vsoContext);
-			});
-		}
-	}
+VSS.ready(function() {
+    var sharedConfig: any = VSS.getConfiguration();
+    var vsoContext: WebContext = VSS.getWebContext();
 
-	private _initResults(build: TFS_Build_Contracts.Build, vsoContext: WebContext) {
-		var taskClient = DT_Client.getClient();
-		taskClient.getPlanAttachments(vsoContext.project.id, "build", build.orchestrationPlan.planId, "kubedock.scanresult").then((attachments) => {
-			if (attachments.length === 0) {
-				$(".result").html("<p>No scan results found for this build.</p>");
-				return;
-			}
-			var attachment = attachments[0];
-			var url = attachment._links.self.href;
-			$.get(url).done((html: string) => {
-				$(".result").html(html);
-			}).fail(() => {
-				$(".result").html("<p>Failed to load scan results.</p>");
-			});
-		});
-	}
-}
+    if (sharedConfig && sharedConfig.onBuildChanged) {
+        sharedConfig.onBuildChanged(function(build: any) {
+            var container = document.querySelector(".result") as HTMLElement;
 
-ResultTab.enhance(ResultTab, $(".result"), {});
+            VSS.getAccessToken().then(async function(token) {
+                try {
+                    var orgUrl = vsoContext.host.uri.replace(/\/$/, "") + "/";
+                    var projectId = vsoContext.project.id;
+                    var planId = build.orchestrationPlan.planId;
+                    var apiUrl = orgUrl + projectId + "/_apis/distributedtask/hubs/build/plans/" + planId + "/attachments/kubedock.scanresult?api-version=7.1";
 
-// Notify the parent frame that the host has been loaded
-VSS.notifyLoadSucceeded();
+                    var listRes = await fetch(apiUrl, { headers: { "Authorization": "Bearer " + token.token } });
+                    var result: any = await listRes.json();
 
-	
+                    if (!result.value || result.value.length === 0) {
+                        container.innerHTML = "<p>No scan results found for this build.</p>";
+                        return;
+                    }
+
+                    var contentRes = await fetch(result.value[0]._links.self.href, { headers: { "Authorization": "Bearer " + token.token } });
+                    container.innerHTML = await contentRes.text();
+                } catch {
+                    container.innerHTML = "<p>Failed to load scan results.</p>";
+                }
+            });
+        });
+    }
+
+    VSS.notifyLoadSucceeded();
+});
