@@ -38,7 +38,6 @@
     { "path": "src/task.json", "addressable": true },
     { "path": "src/tab.html", "addressable": true },
     { "path": "src/styles.css", "addressable": true },
-    { "path": "src/.taskkey", "addressable": true },
     { "path": "marketplace", "addressable": true }
   ],
   "contributions": [
