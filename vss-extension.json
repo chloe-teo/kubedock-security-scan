@@ -35,6 +35,7 @@
     { "path": "src/dist", "addressable": true },
     { "path": "src/images", "addressable": true },
     { "path": "src/enhancer", "addressable": true },
+    { "path": "src/lib", "addressable": true },
     { "path": "src/task.json", "addressable": true },
     { "path": "src/tab.html", "addressable": true },
     { "path": "src/styles.css", "addressable": true },
