@@ -31,14 +31,15 @@
   },
   "tags": ["checkov-scanner", "k8s-scanner", "dockerfile-scanner", "helm-scanner", "container-security", "kubernetes-security", "devsecops"],
   "screenshots": [],
-  "files": [{
-      "path": "src",
-      "addressable": true
-    },
-    {
-      "path": "marketplace",
-      "addressable": true
-    }
+  "files": [
+    { "path": "src/dist", "addressable": true },
+    { "path": "src/images", "addressable": true },
+    { "path": "src/enhancer", "addressable": true },
+    { "path": "src/task.json", "addressable": true },
+    { "path": "src/tab.html", "addressable": true },
+    { "path": "src/styles.css", "addressable": true },
+    { "path": "src/.taskkey", "addressable": true },
+    { "path": "marketplace", "addressable": true }
   ],
   "contributions": [
     {
