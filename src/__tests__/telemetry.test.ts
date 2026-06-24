@@ -6,6 +6,8 @@ beforeEach(() => {
     mockStart.mockReset();
     mockShutdown.mockReset();
     mockShutdown.mockResolvedValue(undefined);
+    delete process.env['OTEL_EXPORTER_OTLP_ENDPOINT'];
+    delete process.env['OTEL_SERVICE_NAME'];
 
     jest.doMock('@opentelemetry/sdk-node', () => ({
         NodeSDK: jest.fn().mockImplementation(() => ({ start: mockStart, shutdown: mockShutdown })),
