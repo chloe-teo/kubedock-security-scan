@@ -1,11 +1,10 @@
-trigger: 
-- main
+trigger: none
 
 pool:
   vmImage: "ubuntu-latest"
 
 variables:
-  - group: kubedock-extension-grp # Your variable group name
+  - group: kubedock-extension-grp-dev # Your variable group name
 
 stages:
   - stage: Test_and_validate
@@ -78,6 +77,10 @@ stages:
               workingDir: '$(Build.SourcesDirectory)/src'
               customCommand: 'run build'
 
+          - script: |
+              jq '.id = "12c53210-6fb5-4726-8055-c3b4435e0a44"' src/task.json > src/task.tmp.json && mv src/task.tmp.json src/task.json
+            displayName: 'Patch task.json with dev GUID'
+
           - task: QueryAzureDevOpsExtensionVersion@5
             name: QueryVersion
             displayName: 'Query current extension version'
@@ -92,6 +95,7 @@ stages:
             displayName: 'Package extension'
             inputs:
               rootFolder: '$(System.DefaultWorkingDirectory)'
+              patternManifest: 'vss-extension-dev.json'
               publisherId: '$(publisherId)'
               extensionId: '$(extensionId)'
               extensionName: '$(extensionName)'
@@ -112,7 +116,7 @@ stages:
   - stage: Publish_to_marketplace
     displayName: 'Publish to Marketplace'
     dependsOn: Package_extension
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/*'))
     jobs:
       - deployment: PublishExtension
         displayName: 'Deploy to marketplace'
