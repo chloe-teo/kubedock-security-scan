@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json && tsc -p tsconfig.enhancer.json",
+    "build": "esbuild index.ts --bundle --platform=node --target=node20 --outfile=dist/index.js && tsc -p tsconfig.enhancer.json",
     "postbuild": "node scripts/postbuild.js",
     "test": "jest --coverage --reporters=default --reporters=jest-junit"
   },
@@ -14,11 +14,10 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@opentelemetry/api": "^1.9.1",
     "@opentelemetry/exporter-metrics-otlp-http": "^0.219.0",
-    "@opentelemetry/exporter-trace-otlp-http": "^0.219.0",
     "@opentelemetry/resources": "^2.8.0",
     "@opentelemetry/sdk-metrics": "^2.8.0",
     "@opentelemetry/sdk-node": "^0.219.0",
@@ -31,6 +30,7 @@
     "@types/jquery": "^4.0.1",
     "@types/node": "^20.19.42",
     "@types/q": "^1.5.8",
+    "esbuild": "^0.28.1",
     "jest": "^30.4.2",
     "jest-junit": "^16.0.0",
     "ts-jest": "^29.4.11",

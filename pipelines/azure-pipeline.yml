@@ -78,13 +78,6 @@ stages:
               workingDir: '$(Build.SourcesDirectory)/src'
               customCommand: 'run build'
 
-          - task: Npm@1
-            displayName: 'Remove dev dependencies'
-            inputs:
-              command: 'custom'
-              workingDir: '$(Build.SourcesDirectory)/src'
-              customCommand: 'prune --production'
-
           - task: QueryAzureDevOpsExtensionVersion@5
             name: QueryVersion
             displayName: 'Query current extension version'
