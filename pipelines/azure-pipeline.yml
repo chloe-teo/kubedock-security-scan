@@ -98,7 +98,7 @@ stages:
               extensionVersion: '$(QueryVersion.Extension.Version)'
               updateTasksVersion: true
               updateTasksVersionType: 'patch'
-              extensionVisibility: 'private'
+              extensionVisibility: 'public'
               extensionPricing: 'free'
               outputPath: '$(Build.ArtifactStagingDirectory)'
 
@@ -112,7 +112,7 @@ stages:
   - stage: Publish_to_marketplace
     displayName: 'Publish to Marketplace'
     dependsOn: Package_extension
-    #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
     jobs:
       - deployment: PublishExtension
         displayName: 'Deploy to marketplace'
@@ -137,5 +137,5 @@ stages:
                     extensionId: '$(extensionId)'
                     extensionName: '$(extensionName)'
                     updateTasksVersion: false
-                    extensionVisibility: 'private'
+                    extensionVisibility: 'public'
                     extensionPricing: 'free'
