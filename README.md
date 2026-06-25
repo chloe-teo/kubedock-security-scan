@@ -7,14 +7,14 @@
 Misconfigured Kubernetes manifests and Dockerfiles are a common source of security vulnerabilities — yet they often go undetected until after deployment. **KubeDock Security Scan** catches these issues earlier by running [Checkov](https://www.checkov.io/) security checks directly inside your Azure DevOps pipeline, before any code reaches production.
 
 **What it does:**
-- Scans Kubernetes manifests, Dockerfiles, and Helm charts for security misconfigurations
-- Publishes a detailed HTML report as a dedicated **KubeDock Scan** tab in the pipeline summary
-- Posts inline PR comments on violations when used as a branch policy build validation pipeline
-- Emits per-check metrics via OpenTelemetry for observability dashboards (e.g. Grafana)
+- 🔍 Scans Kubernetes manifests, Dockerfiles, and Helm charts for security misconfigurations
+- 📋 Publishes a detailed HTML report as a dedicated **KubeDock Scan** tab in the pipeline summary
+- 💬 Posts inline PR comments on violations when used as a branch policy build validation pipeline
+- 📊 Emits per-check metrics via OpenTelemetry for observability dashboards (e.g. Grafana)
 
 **What it solves:**
-- Gives development teams immediate feedback on security issues during the pull request stage, rather than at runtime
-- Enforces a consistent security baseline across all repositories without requiring each team to configure Checkov themselves
+- ⚡ Gives development teams immediate feedback on security issues during the pull request stage, rather than at runtime
+- 🛡️ Enforces a consistent security baseline across all repositories without requiring each team to configure Checkov themselves
 
 By default it runs all built-in Checkov policies. As a Kubernetes operator, you can narrow the scope to a specific policy list or supply custom checks (YAML or Python) via a central policy repository. See the **Custom Policy Setup** section for details.
 
