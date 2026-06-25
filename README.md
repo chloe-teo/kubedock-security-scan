@@ -38,7 +38,7 @@ You can set OTLP endpoint and OTLP headers as environment variables, and it will
 | `repoPath` | string | **Yes** | `$(System.DefaultWorkingDirectory)` | Path to the checked-out repo to scan. Must exist or the task fails immediately. |
 | `policyRepoPath` | string | No | _(empty)_ | Path to a pre-checked-out central policy repo. Should contain a `checkov-policy.yaml` and/or a `custom-checks/` folder. Leave empty to use Checkov's built-in checks. |
 | `helmFolderPath` | string | No | _(empty)_ | Path to the Helm chart directory (must contain `Chart.yaml`). **Required when `helmTemplatesPath` is set.** |
-| `helmTemplatesPath` | string | No | _(empty)_ | Path to Helm templates to render and scan. When set, the task uses `helm template` to render manifests before scanning. Requires `helmFolderPath`. |
+| `helmTemplatesPath` | string | No | _(empty)_ | Path to pre-checked-out Helm templates to render and scan. When set, the task uses `helm template` to render manifests before scanning. Requires `helmFolderPath`. |
 | `helmValuesPaths` | string | No | _(empty)_ | Comma-separated list of Helm values files (e.g. `values.yaml,values.prod.yaml`). **Required when `helmTemplatesPath` is set.** |
 | `failOnIssues` | boolean | No | `false` | When `true`, the pipeline **fails** if Checkov finds any issues. When `false`, issues are reported as a warning (`SucceededWithIssues`) without breaking the build. |
 | `postPrComment` | boolean | No | `false` | When `true` and this task is used as part of a build validation pipeline set in branch policy, then PR comment will be generated if there is violation after scanning is done |
@@ -120,7 +120,7 @@ You can set OTLP endpoint and OTLP headers as environment variables, and it will
 
 ### Enabling Telemetry
 
-Set these environment variables on your Azure DevOps agent (or as pipeline variables):
+Set these environment variables on your Azure DevOps agent:
 
 | Variable | Description |
 |----------|-------------|
@@ -155,23 +155,21 @@ sum by (repository) (kubedock_scan_failed_checks_total)
 4. Put the sample PromQL above into the input text box.
 5. Click **Run queries**
 
-To drill down further, e.g. failed checks per repository broken down by framework:
-```promql
-sum by (repository, framework) (increase(kubedock_scan_failed_checks_total[$__range]))
-```
-
 ---
 
 ## Custom Policy Setup
 
 To curate your own policy list, choose from the following:
-[Checkov Kubernetes policy list](https://www.checkov.io/5.Policy%20Index/kubernetes.html).
-[Checkov Docker policy list](https://www.checkov.io/5.Policy%20Index/dockerfile.html).
+
+a. [Checkov Kubernetes policy list](https://www.checkov.io/5.Policy%20Index/kubernetes.html).
+
+b. [Checkov Docker policy list](https://www.checkov.io/5.Policy%20Index/dockerfile.html).
+
 
 1. Create a yaml file with name ``checkov-policy.yaml`` in a folder with following content to test out:
 
-This following checks are from existing Checkov policy, select some for your team/company purpose.
-```yaml
+   This following checks are from existing Checkov policy, select some for your team/company purpose.
+  ```yaml
 check:
   # Kubernetes
   - CKV_K8S_8    # Liveness probe configured
