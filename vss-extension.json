@@ -1,6 +1,6 @@
 {
   "manifestVersion": 1,
-  "id": "kubedock-security-scan",
+  "id": "kubedock-security-scan-v1",
   "publisher": "chloe-teo10",
   "version": "0.0.1",
   "name": "KubeDock Security Scan",
@@ -31,21 +31,35 @@
   },
   "tags": ["checkov-scanner", "k8s-scanner", "dockerfile-scanner", "helm-scanner", "container-security", "kubernetes-security", "devsecops"],
   "screenshots": [],
-  "files": [{
-      "path": "src",
-      "addressable": true
+  "files": [
+    { "path": "src/dist", "addressable": true },
+    { "path": "src/images", "addressable": true },
+    { "path": "src/enhancer", "addressable": true },
+    { "path": "src/lib", "addressable": true },
+    { "path": "src/task.json", "addressable": true },
+    { "path": "src/tab.html", "addressable": true },
+    { "path": "src/styles.css", "addressable": true },
+    { "path": "marketplace", "addressable": true }
+  ],
+  "contributions": [
+    {
+      "id": "kubedock-security-scan-v1",
+      "type": "ms.vss-distributed-task.task",
+      "targets": ["ms.vss-distributed-task.tasks"],
+      "properties": {
+        "name": "src"
+      }
     },
     {
-      "path": "marketplace",
-      "addressable": true
+      "id": "kubedock-scan-tab",
+      "type": "ms.vss-build-web.build-results-tab",
+      "description": "KubeDock Security Scan results tab",
+      "targets": ["ms.vss-build-web.build-results-view"],
+      "properties": {
+        "name": "KubeDock Scan",
+        "uri": "src/tab.html",
+        "supportsTasks": ["8041a5ee-07dc-412e-9060-665e06c79825"]
+      }
     }
-  ],
-  "contributions": [{
-    "id": "kubedock-security-scan",
-    "type": "ms.vss-distributed-task.task",
-    "targets": ["ms.vss-distributed-task.tasks"],
-    "properties": {
-      "name": "src"
-    }
-  }]
+  ]
 }

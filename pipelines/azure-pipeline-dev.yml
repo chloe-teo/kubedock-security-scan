@@ -1,0 +1,145 @@
+trigger: none
+
+pool:
+  vmImage: "ubuntu-latest"
+
+variables:
+  - group: kubedock-extension-grp-dev # Your variable group name
+
+stages:
+  - stage: Test_and_validate
+    displayName: 'Run Tests and Validate Code'
+    jobs:
+      - job: RunTests
+        displayName: 'Execute unit tests'
+        steps:
+          - task: TfxInstaller@5
+            displayName: 'Install TFX CLI'
+            inputs:
+              version: "v0.x"
+          
+          - task: Npm@1
+            displayName: 'Install task dependencies'
+            inputs:
+              command: 'install'
+              workingDir: '$(Build.SourcesDirectory)/src'
+
+          - task: Npm@1
+            displayName: 'Run build'
+            inputs:
+              command: 'custom'
+              workingDir: '$(Build.SourcesDirectory)/src'
+              customCommand: 'run build'
+
+          - task: Npm@1
+            displayName: 'Run unit tests'
+            inputs:
+              command: 'custom'
+              workingDir: '$(Build.SourcesDirectory)/src'
+              customCommand: 'test'
+          
+          - task: PublishTestResults@2
+            displayName: 'Publish test results'
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '**/test-results.xml'
+              searchFolder: '$(System.DefaultWorkingDirectory)'
+          
+          - task: PublishCodeCoverageResults@2
+            displayName: 'Publish code coverage'
+            inputs:
+              summaryFileLocation: '$(Build.SourcesDirectory)/src/coverage/cobertura-coverage.xml'
+
+
+  - stage: Package_extension
+    displayName: 'Package Extension'
+    dependsOn: Test_and_validate
+    condition: succeeded()
+    jobs:
+      - job: PackageExtension
+        displayName: 'Create VSIX package'
+        steps:
+          - task: TfxInstaller@5
+            displayName: 'Install TFX CLI'
+            inputs:
+              version: "v0.x"
+          
+          - task: Npm@1
+            displayName: 'Install dependencies'
+            inputs:
+              command: 'install'
+              workingDir: '$(Build.SourcesDirectory)/src'
+
+          - task: Npm@1
+            displayName: 'Run build'
+            inputs:
+              command: 'custom'
+              workingDir: '$(Build.SourcesDirectory)/src'
+              customCommand: 'run build'
+
+          - script: |
+              jq '.id = "12c53210-6fb5-4726-8055-c3b4435e0a44"' src/task.json > src/task.tmp.json && mv src/task.tmp.json src/task.json
+            displayName: 'Patch task.json with dev GUID'
+
+          - task: QueryAzureDevOpsExtensionVersion@5
+            name: QueryVersion
+            displayName: 'Query current extension version'
+            inputs:
+              connectTo: 'VsTeam'
+              connectedServiceName: 'visual-studio-marketplace'
+              publisherId: '$(publisherId)'
+              extensionId: '$(extensionId)'
+              versionAction: 'Patch'
+          
+          - task: PackageAzureDevOpsExtension@5
+            displayName: 'Package extension'
+            inputs:
+              rootFolder: '$(System.DefaultWorkingDirectory)'
+              patternManifest: 'vss-extension-dev.json'
+              publisherId: '$(publisherId)'
+              extensionId: '$(extensionId)'
+              extensionName: '$(extensionName)'
+              extensionVersion: '$(QueryVersion.Extension.Version)'
+              updateTasksVersion: true
+              updateTasksVersionType: 'patch'
+              extensionVisibility: 'private'
+              extensionPricing: 'free'
+              outputPath: '$(Build.ArtifactStagingDirectory)'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish VSIX artifact'
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: '$(artifactName)'
+              publishLocation: 'Container'
+
+  - stage: Publish_to_marketplace
+    displayName: 'Publish to Marketplace'
+    dependsOn: Package_extension
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/*'))
+    jobs:
+      - deployment: PublishExtension
+        displayName: 'Deploy to marketplace'
+        environment: 'marketplace-production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: TfxInstaller@5
+                  displayName: 'Install TFX CLI'
+                  inputs:
+                    version: "v0.x"
+
+                - task: PublishAzureDevOpsExtension@5
+                  displayName: 'Publish to marketplace'
+                  inputs:
+                    connectTo: 'VsTeam'
+                    connectedServiceName: 'visual-studio-marketplace'
+                    fileType: 'vsix'
+                    vsixFile: '$(Pipeline.Workspace)/$(artifactName)/**/*.vsix'
+                    publisherId: '$(publisherId)'
+                    extensionId: '$(extensionId)'
+                    extensionName: '$(extensionName)'
+                    updateTasksVersion: false
+                    extensionVisibility: 'private'
+                    extensionPricing: 'free'

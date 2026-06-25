@@ -6,11 +6,33 @@ import { CheckovResults } from './types';
 import { installCheckov, runCheckov } from './checkov';
 import { renderHelmTemplates } from './helm';
 import { generateHTML } from './report';
+import { getPrContext, postPrComments } from './pr-comment';
+import { initTelemetry, shutdownTelemetry, getMeter } from './telemetry';
 
 export async function run() {
+    const meter = getMeter();
+    const failedChecks = meter.createCounter('kubedock.scan.failed_checks', {
+        description: 'Each failed Checkov check, labelled by framework, check_id, and resource (deployment name)',
+    });
+
+    const repository = tl.getVariable('Build.Repository.Name') ?? 'unknown';
+
+    const recordCounts = (r: CheckovResults | null, framework: string) => {
+        if (!r) return;
+        for (const check of r.results.failed_checks) {
+            failedChecks.add(1, {
+                framework,
+                check_id: check.check_id,
+                resource: check.resource,
+                repository,
+            });
+        }
+    };
+
     try {
         const repoPath: string = tl.getInput('repoPath', true)!;
         const failOnIssues: boolean = tl.getBoolInput('failOnIssues', false) ?? true;
+        const postPrCommentsEnabled: boolean = tl.getBoolInput('postPrComment', false) ?? false;
         const policyRepoPath: string = tl.getInput('policyRepoPath', false) ?? '';
         const helmFolderPath: string = tl.getInput('helmFolderPath', false) ?? '';
         const helmTemplatesPath: string = tl.getInput('helmTemplatesPath', false) ?? '';
@@ -45,11 +67,15 @@ export async function run() {
             }
 
             installCheckov();
+
             const configFile = policyDir ? path.join(policyDir, 'checkov-policy.yaml') : undefined;
             const checksDir = policyDir ? path.join(policyDir, 'custom-checks') : undefined;
 
             const k8sResults = runCheckov(resolved, 'kubernetes', configFile, checksDir);
+            recordCounts(k8sResults, 'kubernetes');
+
             const dockerResults = runCheckov(resolved, 'dockerfile', configFile, checksDir);
+            recordCounts(dockerResults, 'dockerfile');
 
             let helmResults: CheckovResults | null;
 
@@ -62,22 +88,39 @@ export async function run() {
             } else {
                 helmResults = runCheckov(resolved, 'helm', configFile, checksDir);
             }
+            recordCounts(helmResults, 'helm');
 
             const html = generateHTML(k8sResults, helmResults, dockerResults, resolved);
 
             const tempDir = tl.getVariable('Agent.TempDirectory') ?? os.tmpdir();
-            const reportPath = path.join(tempDir, 'kubediffscan-report.html');
+            const reportPath = path.join(tempDir, 'kubedockscan-report.html');
             fs.writeFileSync(reportPath, html, 'utf8');
             console.log(`Report saved: ${reportPath}`);
 
-            console.log(`##vso[task.addattachment type=Distributedtask.Core.Summary;name=KubeDock Security Scan;]${reportPath}`);
+            tl.command('task.addattachment', { type: 'kubedock.scanresult', name: 'KubeDock Security Scan' }, reportPath);
 
-            const totalFailed = (helmResults?.summary.failed ?? 0) + (k8sResults?.summary.failed ?? 0) + (dockerResults?.summary.failed ?? 0);
+            const totalFailed =
+                (helmResults?.summary.failed ?? 0) +
+                (k8sResults?.summary.failed ?? 0) +
+                (dockerResults?.summary.failed ?? 0);
+
+            if (postPrCommentsEnabled) {
+                const prCtx = getPrContext();
+                if (prCtx) {
+                    const allFailed = [
+                        ...(k8sResults?.results.failed_checks ?? []),
+                        ...(helmResults?.results.failed_checks ?? []),
+                        ...(dockerResults?.results.failed_checks ?? []),
+                    ];
+                    await postPrComments(allFailed, prCtx);
+                }
+            }
+
             if (totalFailed > 0) {
-                const message = `Checkov found ${totalFailed} security issue(s). See the "KubeDock Security Scan" tab for details.`;
+                const message = `KubeDock Security Scan task found ${totalFailed} security issue(s). See the "KubeDock Scan" tab for details.`;
                 tl.setResult(failOnIssues ? tl.TaskResult.Failed : tl.TaskResult.SucceededWithIssues, message);
             } else {
-                tl.setResult(tl.TaskResult.Succeeded, 'All Checkov checks passed.');
+                tl.setResult(tl.TaskResult.Succeeded, 'All KubeDock Security Scan checks passed.');
             }
         } catch (e: any) {
             throw new Error(`Failed to run the checking, the error message is (${e.message})`);
@@ -87,6 +130,7 @@ export async function run() {
     }
 }
 
-if (require.main === module) {
-    run();
+if ((require as any).main === module) {
+    initTelemetry();
+    run().finally(() => shutdownTelemetry());
 }

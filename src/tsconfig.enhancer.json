@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "none",
+    "moduleResolution": "node",
+    "resolveJsonModule": false,
+    "outDir": "./",
+    "rootDir": "./"
+  },
+  "include": ["enhancer/**/*.ts"]
+}

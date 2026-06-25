@@ -3,3 +3,6 @@
 dist
 .vscode
 coverage
+test-results.xml
+lib
+tab.js

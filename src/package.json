@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
-    "postbuild": "node -e \"require('fs').copyFileSync('styles.css', 'dist/styles.css')\"",
+    "build": "esbuild index.ts --bundle --platform=node --target=node20 --outfile=dist/index.js && tsc -p tsconfig.enhancer.json",
+    "postbuild": "node scripts/postbuild.js",
     "test": "jest --coverage --reporters=default --reporters=jest-junit"
   },
   "jest-junit": {
@@ -14,17 +14,26 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
-    "azure-pipelines-task-lib": "^5.2.10"
+    "@opentelemetry/api": "^1.9.1",
+    "@opentelemetry/exporter-metrics-otlp-http": "^0.219.0",
+    "@opentelemetry/resources": "^2.8.0",
+    "@opentelemetry/sdk-metrics": "^2.8.0",
+    "@opentelemetry/sdk-node": "^0.219.0",
+    "@opentelemetry/semantic-conventions": "^1.41.1",
+    "azure-pipelines-task-lib": "^5.2.10",
+    "vss-web-extension-sdk": "^5.141.0"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
+    "@types/jquery": "^4.0.1",
     "@types/node": "^20.19.42",
     "@types/q": "^1.5.8",
+    "esbuild": "^0.28.1",
     "jest": "^30.4.2",
+    "jest-junit": "^16.0.0",
     "ts-jest": "^29.4.11",
-    "typescript": "^5.9.3",
-    "jest-junit": "^16.0.0"
+    "typescript": "^5.9.3"
   }
 }

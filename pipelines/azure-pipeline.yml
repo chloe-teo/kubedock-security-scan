@@ -14,7 +14,7 @@ stages:
       - job: RunTests
         displayName: 'Execute unit tests'
         steps:
-          - task: TfxInstaller@4
+          - task: TfxInstaller@5
             displayName: 'Install TFX CLI'
             inputs:
               version: "v0.x"
@@ -30,7 +30,7 @@ stages:
             inputs:
               command: 'custom'
               workingDir: '$(Build.SourcesDirectory)/src'
-              customCommand: 'build'
+              customCommand: 'run build'
 
           - task: Npm@1
             displayName: 'Run unit tests'
@@ -60,7 +60,7 @@ stages:
       - job: PackageExtension
         displayName: 'Create VSIX package'
         steps:
-          - task: TfxInstaller@4
+          - task: TfxInstaller@5
             displayName: 'Install TFX CLI'
             inputs:
               version: "v0.x"
@@ -76,16 +76,9 @@ stages:
             inputs:
               command: 'custom'
               workingDir: '$(Build.SourcesDirectory)/src'
-              customCommand: 'build'
+              customCommand: 'run build'
 
-          - task: Npm@1
-            displayName: 'Remove dev dependencies'
-            inputs:
-              command: 'custom'
-              workingDir: '$(Build.SourcesDirectory)/src'
-              customCommand: 'prune --production'
-
-          - task: QueryAzureDevOpsExtensionVersion@4
+          - task: QueryAzureDevOpsExtensionVersion@5
             name: QueryVersion
             displayName: 'Query current extension version'
             inputs:
@@ -95,7 +88,7 @@ stages:
               extensionId: '$(extensionId)'
               versionAction: 'Patch'
           
-          - task: PackageAzureDevOpsExtension@4
+          - task: PackageAzureDevOpsExtension@5
             displayName: 'Package extension'
             inputs:
               rootFolder: '$(System.DefaultWorkingDirectory)'
@@ -105,13 +98,14 @@ stages:
               extensionVersion: '$(QueryVersion.Extension.Version)'
               updateTasksVersion: true
               updateTasksVersionType: 'patch'
-              extensionVisibility: 'private'
+              extensionVisibility: 'public'
               extensionPricing: 'free'
-          
+              outputPath: '$(Build.ArtifactStagingDirectory)'
+
           - task: PublishBuildArtifacts@1
             displayName: 'Publish VSIX artifact'
             inputs:
-              PathtoPublish: '$(System.DefaultWorkingDirectory)/*.vsix'
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
               ArtifactName: '$(artifactName)'
               publishLocation: 'Container'
 
@@ -127,21 +121,21 @@ stages:
           runOnce:
             deploy:
               steps:
-                - task: TfxInstaller@4
+                - task: TfxInstaller@5
                   displayName: 'Install TFX CLI'
                   inputs:
                     version: "v0.x"
-                
-                - task: PublishAzureDevOpsExtension@4
+
+                - task: PublishAzureDevOpsExtension@5
                   displayName: 'Publish to marketplace'
                   inputs:
                     connectTo: 'VsTeam'
                     connectedServiceName: 'visual-studio-marketplace'
                     fileType: 'vsix'
-                    vsixFile: '$(Pipeline.Workspace)/$(artifactName)/*.vsix'
+                    vsixFile: '$(Pipeline.Workspace)/$(artifactName)/**/*.vsix'
                     publisherId: '$(publisherId)'
                     extensionId: '$(extensionId)'
                     extensionName: '$(extensionName)'
                     updateTasksVersion: false
-                    extensionVisibility: 'private'
+                    extensionVisibility: 'public'
                     extensionPricing: 'free'

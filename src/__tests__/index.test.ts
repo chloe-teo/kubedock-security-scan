@@ -3,6 +3,7 @@ jest.mock('azure-pipelines-task-lib/task', () => ({
     getBoolInput: jest.fn(),
     getVariable: jest.fn(),
     setResult: jest.fn(),
+    command: jest.fn(),
     TaskResult: { Succeeded: 0, SucceededWithIssues: 1, Failed: 2 }
 }));
 
@@ -30,6 +31,8 @@ import { runCheckov } from '../checkov';
 import { renderHelmTemplates } from '../helm';
 import { generateHTML } from '../report';
 import { run } from '../index';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const taskJson = require('../task.json');
 
 const mockGetInput = tl.getInput as jest.Mock;
 const mockGetBoolInput = tl.getBoolInput as jest.Mock;
@@ -134,7 +137,7 @@ describe('run', () => {
 
     it('sets result to succeeded when no failures found', async () => {
         await run();
-        expect(mockSetResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'All Checkov checks passed.');
+        expect(mockSetResult).toHaveBeenCalledWith(tl.TaskResult.Succeeded, 'All KubeDock Security Scan checks passed.');
     });
 
     it('fails the pipeline when failOnIssues is true and issues are found', async () => {
@@ -156,9 +159,21 @@ describe('run', () => {
     it('writes the HTML report to a file', async () => {
         await run();
         expect(fs.writeFileSync).toHaveBeenCalledWith(
-            expect.stringContaining('kubediffscan-report.html'),
+            expect.stringContaining('kubedockscan-report.html'),
             '<html></html>',
             'utf8'
         );
+    });
+
+    it('only reads input names declared in task.json', async () => {
+        const declaredInputs: string[] = taskJson.inputs.map((i: any) => i.name);
+        await run();
+        const allInputNames = [
+            ...mockGetInput.mock.calls.map(([name]: [string]) => name),
+            ...mockGetBoolInput.mock.calls.map(([name]: [string]) => name),
+        ];
+        for (const name of allInputNames) {
+            expect(declaredInputs).toContain(name);
+        }
     });
 });

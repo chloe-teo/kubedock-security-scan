@@ -4,6 +4,8 @@ import { CheckovCheck, CheckovResults } from './types';
 import { mergeResults } from './checkov';
 
 const reportStyles = fs.readFileSync(path.join(__dirname, 'styles.css'), 'utf8');
+const logoBase64 = fs.readFileSync(path.join(__dirname, 'images', 'logo.png')).toString('base64');
+const logoDataUri = `data:image/png;base64,${logoBase64}`;
 
 function escapeHtml(s: string | undefined | null): string {
     return String(s ?? '')
@@ -18,6 +20,9 @@ function checkRow(check: CheckovCheck, status: 'passed' | 'failed'): string {
     const badge = status === 'passed'
         ? '<span class="badge-pass">PASS</span>'
         : '<span class="badge-fail">FAIL</span>';
+    const guidelineCell = (status === 'failed' && check.guideline)
+        ? `<a href="${escapeHtml(check.guideline)}" target="_blank" rel="noopener">docs</a>`
+        : '—';
     return `
       <tr>
       <td>${badge}</td>
@@ -25,6 +30,7 @@ function checkRow(check: CheckovCheck, status: 'passed' | 'failed'): string {
       <td>${escapeHtml(check.resource)}</td>
       <td class="mono small">${escapeHtml(relFile)}</td>
       <td>${escapeHtml(check.check_name)}</td>
+      <td>${guidelineCell}</td>
     </tr>`;
 }
 
@@ -47,7 +53,7 @@ function sectionHtml(title: string, results: CheckovResults | null): string {
       </div>
       <table>
         <thead><tr>
-          <th>Status</th><th>Check ID</th><th>Resource</th><th>File</th><th>Description</th>
+          <th>Status</th><th>Check ID</th><th>Resource</th><th>File</th><th>Description</th><th>Guideline</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
@@ -69,7 +75,10 @@ export function generateHTML(k8s: CheckovResults | null, helmResults: CheckovRes
       <style>${reportStyles}</style>
       </head>
       <body>
-      <h1>KubeDock Security Scan Report</h1>
+      <div class="header">
+        <img class="logo" src="${logoDataUri}" alt="KubeDock Logo" />
+        <h1>KubeDock Security Scan Report</h1>
+      </div>
       <p class="meta">Scanned: ${escapeHtml(scanTime)} &nbsp;|&nbsp; Path: ${escapeHtml(repoPath)}</p>
 
         <div class="totals">
