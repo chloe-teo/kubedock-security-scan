@@ -112,7 +112,7 @@ stages:
   - stage: Publish_to_marketplace
     displayName: 'Publish to Marketplace'
     dependsOn: Package_extension
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
     jobs:
       - deployment: PublishExtension
         displayName: 'Deploy to marketplace'
