@@ -32,7 +32,7 @@ export async function run() {
     try {
         const repoPath: string = tl.getInput('repoPath', true)!;
         const failOnIssues: boolean = tl.getBoolInput('failOnIssues', false) ?? true;
-        const postPrCommentsEnabled: boolean = tl.getBoolInput('postPrComments', false) ?? false;
+        const postPrCommentsEnabled: boolean = tl.getBoolInput('postPrComment', false) ?? false;
         const policyRepoPath: string = tl.getInput('policyRepoPath', false) ?? '';
         const helmFolderPath: string = tl.getInput('helmFolderPath', false) ?? '';
         const helmTemplatesPath: string = tl.getInput('helmTemplatesPath', false) ?? '';

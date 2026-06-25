@@ -31,6 +31,8 @@ import { runCheckov } from '../checkov';
 import { renderHelmTemplates } from '../helm';
 import { generateHTML } from '../report';
 import { run } from '../index';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const taskJson = require('../task.json');
 
 const mockGetInput = tl.getInput as jest.Mock;
 const mockGetBoolInput = tl.getBoolInput as jest.Mock;
@@ -161,5 +163,17 @@ describe('run', () => {
             '<html></html>',
             'utf8'
         );
+    });
+
+    it('only reads input names declared in task.json', async () => {
+        const declaredInputs: string[] = taskJson.inputs.map((i: any) => i.name);
+        await run();
+        const allInputNames = [
+            ...mockGetInput.mock.calls.map(([name]: [string]) => name),
+            ...mockGetBoolInput.mock.calls.map(([name]: [string]) => name),
+        ];
+        for (const name of allInputNames) {
+            expect(declaredInputs).toContain(name);
+        }
     });
 });

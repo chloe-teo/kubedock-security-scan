@@ -4,14 +4,32 @@
 
 # KubeDock Security Scans - Azure DevOps Extension
 
-Want to shift left the security scanning of Kubernetes manifest and Dockerfile into the software development lifecycles? Or to catch any vulnerability due to misconfiguration and provide feedback after application pipeline run? Then this is the extension you can use for those purpose!
+Misconfigured Kubernetes manifests and Dockerfiles are a common source of security vulnerabilities — yet they often go undetected until after deployment. **KubeDock Security Scan** catches these issues earlier by running [Checkov](https://www.checkov.io/) security checks directly inside your Azure DevOps pipeline, before any code reaches production.
 
-This azure pipeline task scans Kubernetes manifests, Dockerfiles, and Helm charts using [Checkov](https://www.checkov.io/) and publishes the results as an HTML report in the pipeline summary tab.
+**What it does:**
+- Scans Kubernetes manifests, Dockerfiles, and Helm charts for security misconfigurations
+- Publishes a detailed HTML report as a dedicated **KubeDock Scan** tab in the pipeline summary
+- Posts inline PR comments on violations when used as a branch policy build validation pipeline
+- Emits per-check metrics via OpenTelemetry for observability dashboards (e.g. Grafana)
 
-This extension shift security scanning of kubernetes manifest and dockerfile into Azure DevOps Pipeline and allow changes to be detected in the software development lifecycle and enable quick feedback for the development team.
+**What it solves:**
+- Gives development teams immediate feedback on security issues during the pull request stage, rather than at runtime
+- Enforces a consistent security baseline across all repositories without requiring each team to configure Checkov themselves
 
-By default it will check against all the policy provided by Checkov. As an kubernetes operator, you can provide custom policy checks (with Yaml or Python) and also set the list of vulnerability that you want to check for the application manifests, by choosing from [Checkov Kubernetes policy list](https://www.checkov.io/5.Policy%20Index/kubernetes.html), [Checkov Docker policy list](https://www.checkov.io/5.Policy%20Index/dockerfile.html). On how to setup this, please look into this below section "Custom Policy Setup"
+By default it runs all built-in Checkov policies. As a Kubernetes operator, you can narrow the scope to a specific policy list or supply custom checks (YAML or Python) via a central policy repository. See the **Custom Policy Setup** section for details.
 
+## Sample 
+
+Scanning result with guidelines links are shown in the KubeDock Scan tab
+![gif1](assets/kubedock-security-scan-1.gif)
+
+If this task is used for build validation pipeline of a branch policy and input ``postPrComments`` is set as true, then pull request comments will appear if there is any violation found.
+![gif2](assets/kubedock-security-scan-2.gif)
+
+You can set OTLP endpoint and OTLP headers as environment variables, and it will send metrics to your observability endpoint. This is sample of using Grafana Cloud. More info, look in to **Enabling Telemetry** section
+![gif3](assets/kubedock-security-scan-3.gif)
+
+---
 
 ## Inputs
 
@@ -21,8 +39,9 @@ By default it will check against all the policy provided by Checkov. As an kuber
 | `policyRepoPath` | string | No | _(empty)_ | Path to a pre-checked-out central policy repo. Should contain a `checkov-policy.yaml` and/or a `custom-checks/` folder. Leave empty to use Checkov's built-in checks. |
 | `helmFolderPath` | string | No | _(empty)_ | Path to the Helm chart directory (must contain `Chart.yaml`). **Required when `helmTemplatesPath` is set.** |
 | `helmTemplatesPath` | string | No | _(empty)_ | Path to Helm templates to render and scan. When set, the task uses `helm template` to render manifests before scanning. Requires `helmFolderPath`. |
-| `helmValuesPaths` | string | No | _(empty)_ | Comma-separated list of Helm values files (e.g. `values.yaml,values.prod.yaml`). Only used when `helmTemplatesPath` is set. |
+| `helmValuesPaths` | string | No | _(empty)_ | Comma-separated list of Helm values files (e.g. `values.yaml,values.prod.yaml`). **Required when `helmTemplatesPath` is set.** |
 | `failOnIssues` | boolean | No | `false` | When `true`, the pipeline **fails** if Checkov finds any issues. When `false`, issues are reported as a warning (`SucceededWithIssues`) without breaking the build. |
+| `postPrComment` | boolean | No | `false` | When `true` and this task is used as part of a build validation pipeline set in branch policy, then PR comment will be generated if there is violation after scanning is done |
 
 ---
 
@@ -36,7 +55,8 @@ By default it will check against all the policy provided by Checkov. As an kuber
 3. If `policyRepoPath` is provided, passes `checkov-policy.yaml` as `--config-file` and `custom-checks/` as `--external-checks-dir`.
 4. Generates an HTML report and attaches it to the pipeline summary as the **"KubeDock Security Scan"** tab.
 5. Sets the task result based on `failOnIssues`.
-
+6. If this pipeline is used in build pipeline set in branch policy, you can set to true for "postPrComment", to provide faster feedback for misconfiguration during PR.
+7. If you have observability platform with OTLP endpoint, you can follow the **Enabling telemetry** section, and telemetry will be sent to your platform.
 ---
 
 ## Usage Examples
@@ -70,7 +90,83 @@ By default it will check against all the policy provided by Checkov. As an kuber
 
 > **Note:** `helmTemplatesPath` cannot be used without `helmFolderPath` — the task will error if `helmTemplatesPath` is set but `helmFolderPath` is empty.
 
+**With PR comments on failed checks (branch policy pipeline):**
+```yaml
+- task: KubeDockSecurityScan@0
+  inputs:
+    repoPath: '$(System.DefaultWorkingDirectory)'
+    postPrComment: true
+    failOnIssues: true
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+```
+
+> **Note:** `postPrComment` requires the build service identity to have **Contribute to pull requests** permission on the repository. Grant this in **Project Settings → Repositories → Security**. The `SYSTEM_ACCESSTOKEN` env var must be explicitly mapped — Azure DevOps does not expose `System.AccessToken` to tasks automatically.
+
+**With telemetry sent to Observability Platform:**
+```yaml
+- task: KubeDockSecurityScan@0
+  inputs:
+    repoPath: '$(System.DefaultWorkingDirectory)'
+    failOnIssues: true
+  env:
+    OTEL_EXPORTER_OTLP_ENDPOINT: '<your-otlp-endpoint>'
+    OTEL_EXPORTER_OTLP_HEADERS: 'Authorization=Basic $(token)'
+    OTEL_SERVICE_NAME: 'kubedock-security-scan'
+```
+
+> **Note:** Store `yourtoken` as a secret pipeline variable. The `env:` block maps it into the task process without exposing it in logs.
+
+
+### Enabling Telemetry
+
+Set these environment variables on your Azure DevOps agent (or as pipeline variables):
+
+| Variable | Description |
+|----------|-------------|
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | Your OTLP endpoint (e.g. `https://otlp-gateway-sample/otlp`) |
+| `OTEL_EXPORTER_OTLP_HEADERS` | Auth header (e.g. `Authorization=Basic <base64-token>`) |
+| `OTEL_SERVICE_NAME` | Optional service name label (default: `kubedock-security-scan`) |
+
+### Metric: `kubedock_scan_failed_checks_total`
+
+Each failed Checkov check emits one counter increment with these labels:
+
+| Label | Example |
+|-------|---------|
+| `repository` | `my-org/my-app` |
+| `framework` | `kubernetes`, `dockerfile`, `helm` |
+| `check_id` | `CKV_K8S_14` |
+| `resource` | `Deployment.default.my-app` |
+
+### Grafana Dashboard — Failed Checks by Repository
+
+**Panel type:** Bar chart
+
+**Sample PromQL query:**
+```promql
+sum by (repository) (kubedock_scan_failed_checks_total)
+```
+
+**Dashboard setup in Grafana:**
+1. Go to **Dashboard** and add a new **Dashboard**.
+2. Add a new **Panel** and click **Configure visualization**.
+3. At the bottom of query editor, select the prometheus data source
+4. Put the sample PromQL above into the input text box.
+5. Click **Run queries**
+
+To drill down further, e.g. failed checks per repository broken down by framework:
+```promql
+sum by (repository, framework) (increase(kubedock_scan_failed_checks_total[$__range]))
+```
+
+---
+
 ## Custom Policy Setup
+
+To curate your own policy list, choose from the following:
+[Checkov Kubernetes policy list](https://www.checkov.io/5.Policy%20Index/kubernetes.html).
+[Checkov Docker policy list](https://www.checkov.io/5.Policy%20Index/dockerfile.html).
 
 1. Create a yaml file with name ``checkov-policy.yaml`` in a folder with following content to test out:
 
@@ -112,13 +208,21 @@ npm test
 ```
 
 Set the environment variable to point to the test folders
-```
-$env:INPUT_failOnIssues='false' # default is false, set to true to fail the pipeline when there is fail results.
-$env:INPUT_helmFolderPath="<your-helm-folder-path>"
-$env:INPUT_helmTemplatesPath="<your-helm-templates-folder-path>"
-$env:INPUT_helmValuesPaths="<your-helm-values-paths>"  # in comma delimited if you have more than one value file.
-$env:INPUT_policyRepoPath = ""   # leave empty to use default Checkov checks
+```powershell
+# Required
 $env:INPUT_repoPath = "<your-repo-where-manifests-dockerfile-lives>"
+
+# Optional — task inputs
+$env:INPUT_failOnIssues = 'false'          # set to true to fail when issues found
+$env:INPUT_helmFolderPath = ""             # path to Helm chart directory
+$env:INPUT_helmTemplatesPath = ""          # path to Helm templates to render
+$env:INPUT_helmValuesPaths = ""            # comma-separated Helm values files
+$env:INPUT_policyRepoPath = ""            # leave empty to use default Checkov checks
+
+# Optional — telemetry (leave unset to disable)
+$env:OTEL_EXPORTER_OTLP_ENDPOINT = "<your-otlp-endpoint>"
+$env:OTEL_EXPORTER_OTLP_HEADERS = "Authorization=Basic <base64-encoded-token>"
+$env:OTEL_SERVICE_NAME = "kubedock-security-scan"
 ```
 
 Run ```node dist/index.js``` to see the console output.
