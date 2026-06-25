@@ -4,7 +4,7 @@
   "publisher": "chloe-teo10",
   "version": "0.0.1",
   "name": "KubeDock Security Scan",
-  "description": "A task to be used in Azure Pipelines to scan Kubernetes manifests and Dockerfiles with Checkov, and publish results to the pipeline summary.",
+  "description": "Scan Kubernetes manifests, Dockerfiles, and Helm charts for security misconfigurations using Checkov. Publishes a detailed HTML report as a pipeline summary tab, with optional PR comments and OpenTelemetry metrics.",
   "public": false,
   "categories": ["Azure Pipelines"],
   "scopes": [
@@ -36,6 +36,7 @@
     { "path": "src/images", "addressable": true },
     { "path": "src/enhancer", "addressable": true },
     { "path": "src/lib", "addressable": true },
+    { "path": "src/icon.png", "addressable": true },
     { "path": "src/task.json", "addressable": true },
     { "path": "src/tab.html", "addressable": true },
     { "path": "src/styles.css", "addressable": true },

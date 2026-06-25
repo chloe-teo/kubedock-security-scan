@@ -1,11 +1,29 @@
 # KubeDock Security Scan
 
-Scans Kubernetes manifests, Dockerfiles, and Helm charts using [Checkov](https://www.checkov.io/) and publishes the results as an HTML report in the pipeline summary tab.
+Misconfigured Kubernetes manifests and Dockerfiles are a common source of security vulnerabilities — yet they often go undetected until after deployment. **KubeDock Security Scan** catches these issues earlier by running [Checkov](https://www.checkov.io/) security checks directly inside your Azure DevOps pipeline, before any code reaches production.
 
-This extension shift security scanning of kubernetes manifest and dockerfile into Azure DevOps Pipeline and allow changes to be detected in the software development lifecycle and enable quick feedback for the development team.
+**What it does:**
+- 🔍 Scans Kubernetes manifests, Dockerfiles, and Helm charts for security misconfigurations
+- 📋 Publishes a detailed HTML report as a dedicated **KubeDock Scan** tab in the pipeline summary
+- 💬 Posts inline PR comments on violations when used as a branch policy build validation pipeline
+- 📊 Emits per-check metrics via OpenTelemetry for observability dashboards (e.g. Grafana)
 
-By default it will check against all the policy provided by Checkov. As an kubernetes operator, you can provide custom policy checks (with Yaml or Python) and also set the list of vulnerability that you want to check for the application manifests, by choosing from [Checkov Kubernetes policy list](https://www.checkov.io/5.Policy%20Index/kubernetes.html), [Checkov Docker policy list](https://www.checkov.io/5.Policy%20Index/dockerfile.html). On how to setup this, please look into this below section "Custom Policy Setup"
+**What it solves:**
+- ⚡ Gives development teams immediate feedback on security issues during the pull request stage, rather than at runtime
+- 🛡️ Enforces a consistent security baseline across all repositories without requiring each team to configure Checkov themselves
 
+By default it runs all built-in Checkov policies. As a Kubernetes operator, you can narrow the scope to a specific policy list or supply custom checks (YAML or Python) via a central policy repository. See the **Custom Policy Setup** section for details.
+
+## Sample 
+
+Scanning result with guidelines links are shown in the KubeDock Scan tab
+![Scan results tab](https://raw.githubusercontent.com/chloe-teo/kubedock-security-scan/main/assets/kubedock-security-scan-1.gif)
+
+If this task is used for build validation pipeline of a branch policy and input ``postPrComments`` is set as true, then pull request comments will appear if there is any violation found.
+![PR comments](https://raw.githubusercontent.com/chloe-teo/kubedock-security-scan/main/assets/kubedock-security-scan-2.gif)
+
+You can set OTLP endpoint and OTLP headers as environment variables, and it will send metrics to your observability endpoint. This is sample of using Grafana Cloud. More info, look in to **Enabling Telemetry** section
+![Grafana telemetry](https://raw.githubusercontent.com/chloe-teo/kubedock-security-scan/main/assets/kubedock-security-scan-3.gif)
 
 ## Inputs
 
