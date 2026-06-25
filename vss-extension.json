@@ -4,7 +4,7 @@
   "publisher": "chloe-teo10",
   "version": "0.0.1",
   "name": "KubeDock Security Scan",
-  "description": "Scan Kubernetes manifests, Dockerfiles, and Helm charts for security misconfigurations using Checkov. Publishes a detailed HTML report as a pipeline summary tab, with optional PR comments and OpenTelemetry metrics.",
+  "description": "Scan Kubernetes manifests, Dockerfiles, and Helm charts with Checkov. Publishes results as a pipeline HTML report, with optional PR comments and OpenTelemetry metrics.",
   "public": false,
   "categories": ["Azure Pipelines"],
   "scopes": [

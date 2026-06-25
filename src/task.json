@@ -3,7 +3,7 @@
     "id": "8041a5ee-07dc-412e-9060-665e06c79825",
     "name": "KubeDockSecurityScan",
     "friendlyName": "KubeDock Security Scan",
-    "description": "Scan Kubernetes manifests, Dockerfiles, and Helm charts for security misconfigurations using Checkov. Publishes a detailed HTML report as a pipeline summary tab, with optional PR comments and OpenTelemetry metrics.",
+    "description": "Scan Kubernetes manifests, Dockerfiles, and Helm charts with Checkov. Publishes results as a pipeline HTML report, with optional PR comments and OpenTelemetry metrics.",
     "helpMarkDown": "For full documentation and usage examples, see the [KubeDock Security Scan README](https://github.com/chloe-teo/kubedock-security-scan#readme).",
     "category": "Utility",
     "author": "chloe-teo",
